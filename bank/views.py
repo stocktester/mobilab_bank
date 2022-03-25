@@ -8,13 +8,15 @@ from .serializers import AccountSerializer, CustomerSerializer
 
 class CustomerListView(APIView):
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
 
         customers = BankCustomer.objects.all()
         serialized = CustomerSerializer(customers, many=True)
         return Response(serialized.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
 
         serialized = CustomerSerializer(data=request.data)
 
