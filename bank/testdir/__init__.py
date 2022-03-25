@@ -1,0 +1,2 @@
+from .customer_list_test import CustomerListViewTests
+from .customer_detail_test import CustomerDetailViewTests

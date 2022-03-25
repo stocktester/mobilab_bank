@@ -1,1 +1,1 @@
-from .testdir.customer_list_test import CustomerListViewTests
+from .testdir import CustomerDetailViewTests, CustomerListViewTests

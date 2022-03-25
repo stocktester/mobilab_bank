@@ -20,7 +20,7 @@ class CustomerListViewTests(TestCase):
 
         new_user = dict(
             name="Test Test",
-            phone="9891123",
+            phone="+9891123",
             email="test@test.test"
         )
 
@@ -44,7 +44,7 @@ class CustomerListViewTests(TestCase):
 
         new_user = dict(
             name="Test Test",
-            phone="9891123",
+            phone="+9891123",
             email="testtesttest"
         )
 
