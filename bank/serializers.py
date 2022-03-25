@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from bank.models import BankCustomer, BankAccount
+from .models import BankCustomer, BankAccount
 
 
 class CustomerSerializer(serializers.ModelSerializer):
