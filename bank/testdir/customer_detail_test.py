@@ -41,6 +41,14 @@ class CustomerDetailViewTests(TestCase):
         self.assertIn("email", response.data)
         self.assertIn("phone", response.data)
 
+    def edit_response(self, user_id, data):
+
+        request = self.factory.put(reverse("bank:customer_detail", kwargs={'pk': user_id}),
+                                   data)
+        response = CustomerDetailView.as_view()(request, pk=user_id)
+
+        return response
+
     def test_get_customer(self) -> None:
 
         request = self.factory.get(reverse("bank:customer_detail", kwargs={'pk': self.user1_id}))
@@ -52,6 +60,13 @@ class CustomerDetailViewTests(TestCase):
         self.assertEqual(response.data["phone"], "+98199881")
         self.assertEqual(response.data["email"], "Test@User1.test")
 
+    def test_get_non_existing_customer(self) -> None:
+
+        request = self.factory.get(reverse("bank:customer_detail", kwargs={'pk': 999}))
+        response = CustomerDetailView.as_view()(request, pk=999)
+
+        self.assertEqual(response.status_code, 404)
+
     def test_edit_customer(self) -> None:
 
         new_user_2 = dict(
@@ -60,9 +75,7 @@ class CustomerDetailViewTests(TestCase):
             email="test@user2.test"
         )
 
-        request = self.factory.put(reverse("bank:customer_detail", kwargs={'pk': self.user2_id}),
-                                   new_user_2)
-        response = CustomerDetailView.as_view()(request, pk=self.user2_id)
+        response = self.edit_response(self.user2_id, new_user_2)
 
         self.assertEqual(response.status_code, 200)
         self.check_response_dict_keys(response)
@@ -70,12 +83,73 @@ class CustomerDetailViewTests(TestCase):
         self.assertEqual(response.data["phone"], "+122345")
         self.assertEqual(response.data["email"], "test@user2.test")
 
+    def test_edit_customer_with_partial_data(self) -> None:
+
+        new_data_2 = dict(
+            phone="+12234512345",
+        )
+
+        response = self.edit_response(self.user2_id, new_data_2)
+
+        self.assertEqual(response.status_code, 200)
+        self.check_response_dict_keys(response)
+        self.assertEqual(response.data["phone"], "+12234512345")
+
+        new_data_2 = dict(
+            email="test@test.org",
+        )
+
+        response = self.edit_response(self.user2_id, new_data_2)
+        self.assertEqual(response.status_code, 200)
+        self.check_response_dict_keys(response)
+        self.assertEqual(response.data["email"], "test@test.org")
+
+    def test_edit_customer_invalid(self) -> None:
+
+        new_data_email = dict(
+            email="test_user2.test"
+        )
+
+        new_data_phone = dict(
+            phone="abcdefg12345"
+        )
+
+        response = self.edit_response(self.user2_id, new_data_email)
+
+        self.assertEqual(response.status_code, 400)
+
+        response = self.edit_response(self.user2_id, new_data_phone)
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_edit_non_existing_customer(self) -> None:
+
+        new_data = dict(
+            email="test@test.org"
+        )
+
+        response = self.edit_response(999, new_data)
+
+        self.assertEqual(response.status_code, 404)
+
     def test_delete_customer(self) -> None:
 
         request = self.factory.delete(reverse("bank:customer_detail", kwargs={'pk': self.user3_id}))
         response = CustomerDetailView.as_view()(request, pk=self.user3_id)
 
         self.assertEqual(response.status_code, 204)
+
+        request = self.factory.get(reverse("bank:customer_detail", kwargs={'pk': self.user3_id}))
+        response = CustomerDetailView.as_view()(request, pk=self.user3_id)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_non_existing_customer(self) -> None:
+
+        request = self.factory.delete(reverse("bank:customer_detail", kwargs={'pk': 999}))
+        response = CustomerDetailView.as_view()(request, pk=999)
+
+        self.assertEqual(response.status_code, 404)
 
 
 
