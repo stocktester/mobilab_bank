@@ -124,3 +124,27 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1.0,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'logfile_handler': {
+            'class': 'logging.FileHandler',
+            'filename': 'mobilab.log',
+            'formatter': 'logfile_handler',
+            'level': 'DEBUG',
+        }
+    },
+    'loggers': {
+        'bank': {
+            'level': 'DEBUG',
+            'handlers': ['logfile_handler'],
+        }
+    },
+    'formatters': {
+        'logfile_handler': {
+            'format': '%(asctime)s %(message)s'
+        }
+    }
+}

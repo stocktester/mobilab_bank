@@ -4,6 +4,9 @@ from rest_framework import status
 from django.http import Http404
 from .models import BankAccount, BankCustomer
 from .serializers import AccountSerializer, CustomerSerializer
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CustomerListView(APIView):
@@ -23,6 +26,8 @@ class CustomerListView(APIView):
         if serialized.is_valid():
 
             serialized.save()
+            keys = ["id", "name", "email", "phone"]
+            logger.info(f"Created user { {x:serialized.data[x] for x in keys} }.")
             return Response(serialized.data, status.HTTP_201_CREATED)
 
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -54,6 +59,9 @@ class CustomerDetailView(APIView):
         if serialized.is_valid():
 
             serialized.save()
+            edited_data = ",".join(map(lambda x: f"{x} => {serialized.data[x]}",
+                                       serialized.validated_data.keys()))
+            logger.info(f"Customer {kwargs['pk']} modified: {edited_data}")
             return Response(serialized.data)
 
         return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -62,6 +70,7 @@ class CustomerDetailView(APIView):
 
         customer = self.get_customer(kwargs["pk"])
         customer.delete()
+        logger.info(f"Customer {kwargs['pk']} deleted.")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
