@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
-from .models import BankAccount, BankCustomer
-from .serializers import AccountSerializer, CustomerSerializer
+from ..models import BankCustomer
+from ..serializers import CustomerSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,9 +72,5 @@ class CustomerDetailView(APIView):
         customer.delete()
         logger.info(f"Customer {kwargs['pk']} deleted.")
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
 
 
