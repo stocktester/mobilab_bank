@@ -74,9 +74,4 @@ class AccountSerializer(serializers.ModelSerializer):
         else:
             return "closed"
 
-    @staticmethod
-    def validate_balance(value):
-
-        if value < 0:
-            raise serializers.ValidationError("Balance can not be less than 0.")
 
