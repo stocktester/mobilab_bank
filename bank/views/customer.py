@@ -38,7 +38,7 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
 
         response = super().destroy(request, *args, **kwargs)
         if response.status_code == 204:
-            logger.critical(f"Customer {kwargs['pk']} deleted.")
+            logger.info(f"Customer {kwargs['pk']} deleted.")
 
         return response
 
