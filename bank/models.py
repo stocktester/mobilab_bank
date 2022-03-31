@@ -1,4 +1,5 @@
 from django.db import models
+from .exchange_settings import CURRENCY
 
 
 class BankCustomer(models.Model):
@@ -16,6 +17,6 @@ class BankAccount(models.Model):
     account_name = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    currency = models.CharField(max_length=3, default="EUR")
+    currency = models.CharField(max_length=100, choices=CURRENCY, default="EUR")
     balance = models.FloatField(default=0)
     closed = models.DateTimeField(null=True)
