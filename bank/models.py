@@ -19,3 +19,7 @@ class BankAccount(models.Model):
     modified = models.DateTimeField(auto_now=True)
     currency = models.CharField(max_length=100, choices=CURRENCY, default="EUR")
     closed = models.DateTimeField(null=True)
+
+    @property
+    def balance(self):
+        return 0
