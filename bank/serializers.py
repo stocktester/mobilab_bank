@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import BankCustomer, BankAccount
+from django.shortcuts import reverse
+from .exchange_settings import CUR_DICT
 import re
 
 
@@ -32,8 +34,49 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 class AccountSerializer(serializers.ModelSerializer):
 
+    status = serializers.SerializerMethodField('get_status')
+
     class Meta:
 
         model = BankAccount
-        fields = '__all__'
+        exclude = ["closed"]
+
+    def __init__(self, instance=None, data=None, context=None, **kwargs):
+
+        super().__init__(instance=instance, data=data, **kwargs)
+        scheme = context["request"].scheme
+        host = context["request"].get_host()
+        self.scheme_host = f'{scheme}://{host}'
+
+    def to_representation(self, instance):
+
+        response = super().to_representation(instance)
+
+        owner_dict = dict(
+            id=instance.owner.id,
+            name=instance.owner.name,
+            ref=f'{self.scheme_host}{reverse("bank:customer_detail", kwargs={"pk": instance.owner.id})}'
+        )
+        response["owner"] = owner_dict
+
+        response["currency"] = dict(
+            code=instance.currency,
+            name=CUR_DICT[instance.currency]
+        )
+
+        return response
+
+    @staticmethod
+    def get_status(instance):
+
+        if not instance.closed:
+            return "open"
+        else:
+            return "closed"
+
+    @staticmethod
+    def validate_balance(value):
+
+        if value < 0:
+            raise serializers.ValidationError("Balance can not be less than 0.")
 
