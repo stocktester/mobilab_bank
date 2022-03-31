@@ -1,7 +1,4 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from django.http import Http404
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from ..models import BankCustomer
 from ..serializers import CustomerSerializer
 import logging
@@ -9,68 +6,39 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class CustomerListView(APIView):
+class CustomerListView(ListCreateAPIView):
 
-    @staticmethod
-    def get(request, *args, **kwargs):
+    queryset = BankCustomer.objects.all()
+    serializer_class = CustomerSerializer
 
-        customers = BankCustomer.objects.all()
-        serialized = CustomerSerializer(customers, many=True)
-        return Response(serialized.data)
+    def post(self, request, *args, **kwargs):
 
-    @staticmethod
-    def post(request, *args, **kwargs):
-
-        serialized = CustomerSerializer(data=request.data)
-
-        if serialized.is_valid():
-
-            serialized.save()
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 201:
             keys = ["id", "name", "email", "phone"]
-            logger.info(f"Created user { {x:serialized.data[x] for x in keys} }.")
-            return Response(serialized.data, status.HTTP_201_CREATED)
-
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+            logger.info(f"Created user { {x: response.data[x] for x in keys} }.")
+        return response
 
 
-class CustomerDetailView(APIView):
+class CustomerDetailView(RetrieveUpdateDestroyAPIView):
 
-    @staticmethod
-    def get_customer(pk):
+    queryset = BankCustomer.objects.all()
+    serializer_class = CustomerSerializer
 
-        try:
-            customer = BankCustomer.objects.get(pk=pk)
-            return customer
-        except BankCustomer.DoesNotExist:
-            raise Http404
+    def update(self, request, *args, **kwargs):
 
-    def get(self, request, *args, **kwargs):
-
-        customer = self.get_customer(kwargs["pk"])
-        serialized = CustomerSerializer(customer)
-
-        return Response(serialized.data)
-
-    def put(self, request, *args, **kwargs):
-
-        customer = self.get_customer(kwargs["pk"])
-        serialized = CustomerSerializer(customer, data=request.data)
-
-        if serialized.is_valid():
-
-            serialized.save()
-            edited_data = ",".join(map(lambda x: f"{x} => {serialized.data[x]}",
-                                       serialized.validated_data.keys()))
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200:
+            edited_data = ",".join(map(lambda x: f"{x} => {request.data[x]}", request.data.keys()))
             logger.info(f"Customer {kwargs['pk']} modified: {edited_data}")
-            return Response(serialized.data)
 
-        return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+        return response
 
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
 
-        customer = self.get_customer(kwargs["pk"])
-        customer.delete()
-        logger.info(f"Customer {kwargs['pk']} deleted.")
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        response = super().destroy(request, *args, **kwargs)
+        if response.status_code == 204:
+            logger.critical(f"Customer {kwargs['pk']} deleted.")
 
+        return response
 

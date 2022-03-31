@@ -144,7 +144,13 @@ LOGGING = {
     },
     'formatters': {
         'logfile_handler': {
-            'format': '%(asctime)s %(message)s'
+            'format': '%(levelname)s %(asctime)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         }
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
 }
