@@ -1,5 +1,4 @@
-from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from common.utils import UrlLisCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from ..models import BankAccount
 from ..serializers import AccountSerializer
 import logging
@@ -7,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class AccountListView(UrlLisCreateAPIView):
+class AccountListView(ListCreateAPIView):
 
     queryset = BankAccount.objects.all()
     serializer_class = AccountSerializer
