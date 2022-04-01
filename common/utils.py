@@ -1,3 +1,17 @@
+from rest_framework.serializers import ModelSerializer
+from rest_framework.fields import empty
+
+
+class SchemeHostModelSerializer(ModelSerializer):
+
+    def __init__(self, instance=None, data=empty, context=None, **kwargs):
+
+        super().__init__(instance=instance, data=data, **kwargs)
+        scheme = context["request"].scheme
+        host = context["request"].get_host()
+        self.scheme_host = f'{scheme}://{host}'
+
+
 class ReverseDict(dict):
 
     def __setitem__(self, key, value):
