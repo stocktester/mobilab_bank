@@ -1,4 +1,4 @@
-from common.utils import ChoiceDict
+from .utils import ChoiceDict
 
 CURRENCY = (('AED', 'United Arab Emirates Dirham'),
             ('AFN', 'Afghan Afghani'),
