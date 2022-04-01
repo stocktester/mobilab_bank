@@ -154,3 +154,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
 }
+
+BANK = {
+    'API_URL': r"https://api.exchangerate.host",
+    'API_METHODS': {
+        'convert': lambda src, dest, amount: f"/convert?from={src}&to={dest}&amount={amount}",
+        'error': lambda src, dest, amount: amount
+    }
+}

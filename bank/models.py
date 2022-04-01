@@ -1,5 +1,5 @@
 from django.db import models
-from .transaction_settings import CURRENCY
+from .currency_data import CURRENCY
 import logging
 
 logger = logging.getLogger(__name__)

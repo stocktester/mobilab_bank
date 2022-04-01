@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .utils import SchemeHostModelSerializer
 from .models import BankCustomer, BankAccount, Transaction
 from django.shortcuts import reverse
-from .transaction_settings import CUR_DICT
+from .currency_data import CUR_DICT
 import re
 
 

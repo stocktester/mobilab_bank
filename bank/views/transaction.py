@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models import Transaction
 from ..serializers import TransactionSerializer
-from ..utils import convert_currency
 import logging
 
 logger = logging.getLogger(__name__)
