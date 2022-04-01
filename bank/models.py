@@ -1,5 +1,8 @@
 from django.db import models
-from .exchange_settings import CURRENCY
+from .transaction_settings import CURRENCY
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class BankCustomer(models.Model):
@@ -22,7 +25,17 @@ class BankAccount(models.Model):
 
     @property
     def balance(self):
-        return 0
+
+        all_in = self.in_transactions.aggregate(models.Sum('amount')).get("amount__sum", 0)
+        all_out = self.out_transactions.aggregate(models.Sum('amount')).get("amount__sum", 0)
+        all_in = all_in if all_in else 0
+        all_out = all_out if all_out else 0
+
+        result = all_in - all_out
+        if result < 0:
+            logger.error(f'Account {self.id} has negative balance.')
+
+        return result
 
 
 class Transaction(models.Model):
