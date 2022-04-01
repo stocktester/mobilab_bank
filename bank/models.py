@@ -1,5 +1,6 @@
 from django.db import models
 from .transaction_settings import CURRENCY
+from .utils import convert_currency
 import logging
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ class BankAccount(models.Model):
     closed = models.DateTimeField(null=True)
 
     @property
-    def balance(self):
+    def balance_eur(self):
 
         all_in = self.in_transactions.aggregate(models.Sum('amount')).get("amount__sum", 0)
         all_out = self.out_transactions.aggregate(models.Sum('amount')).get("amount__sum", 0)
@@ -37,6 +38,14 @@ class BankAccount(models.Model):
 
         return result
 
+    @property
+    def balance(self):
+
+        result = self.balance_eur
+        if result:
+            result = convert_currency(src='EUR', dst=self.currency, amount=result)
+        return result
+
 
 class Transaction(models.Model):
 
@@ -44,5 +53,6 @@ class Transaction(models.Model):
     to_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='in_transactions')
     amount = models.FloatField()  # amount will always store as EUR
     created = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=250, default="0 EUR")
 
 
