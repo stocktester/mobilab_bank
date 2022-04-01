@@ -1,6 +1,7 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from ..models import BankCustomer
 from ..serializers import CustomerSerializer
+from common.utils import log_update
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,16 +30,20 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
 
         response = super().update(request, *args, **kwargs)
         if response.status_code == 200:
-            edited_data = ",".join(map(lambda x: f"{x} => {request.data[x]}", request.data.keys()))
-            logger.info(f"Customer {kwargs['pk']} modified: {edited_data}")
+            log_update("Customer", kwargs['pk'], request, response, logger)
 
         return response
 
     def destroy(self, request, *args, **kwargs):
 
+        accounts = self.get_object().accounts.all()
+        account_list = ",".join([str(x.id) for x in accounts])
         response = super().destroy(request, *args, **kwargs)
         if response.status_code == 204:
-            logger.info(f"Customer {kwargs['pk']} deleted.")
+            if account_list:
+                logger.info(f'Customer {kwargs["pk"]} deleted. Accounts {account_list} deleted.')
+            else:
+                logger.info(f'Customer {kwargs["pk"]} deleted.')
 
         return response
 

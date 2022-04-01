@@ -28,3 +28,11 @@ class ChoiceDict(ReverseDict):
         super().__init__(**holder_dict)
 
 
+def log_update(object_name, pk, request, response, logger):
+
+    edited_keys = [x for x in request.data.keys() if x in response.data.keys()]
+    if edited_keys:
+        edited_data = ",".join(map(lambda x: f"{x} => {request.data[x]}", edited_keys))
+        logger.info(f"{object_name} {pk} modified: {edited_data}")
+
+
