@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from rest_framework.fields import empty
-from .models import BankCustomer, BankAccount
+from common.utils import SchemeHostModelSerializer
+from .models import BankCustomer, BankAccount, Transaction
 from django.shortcuts import reverse
-from .exchange_settings import CUR_DICT
+from .transaction_settings import CUR_DICT
 import re
 
 
-class CustomerSerializer(serializers.ModelSerializer):
+class CustomerSerializer(SchemeHostModelSerializer):
 
     accounts = serializers.SerializerMethodField("get_accounts")
 
@@ -14,13 +14,6 @@ class CustomerSerializer(serializers.ModelSerializer):
 
         model = BankCustomer
         fields = ["id", "name", "phone", "email", "register_datetime", "modified", "accounts"]
-
-    def __init__(self, instance=None, data=empty, context=None, **kwargs):
-
-        super().__init__(instance=instance, data=data, **kwargs)
-        scheme = context["request"].scheme
-        host = context["request"].get_host()
-        self.scheme_host = f'{scheme}://{host}'
 
     @staticmethod
     def validate_phone(value):
@@ -54,7 +47,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         return acc_list
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class AccountSerializer(SchemeHostModelSerializer):
 
     status = serializers.SerializerMethodField('get_status')
 
@@ -62,13 +55,6 @@ class AccountSerializer(serializers.ModelSerializer):
 
         model = BankAccount
         exclude = ["closed"]
-
-    def __init__(self, instance=None, data=empty, context=None, **kwargs):
-
-        super().__init__(instance=instance, data=data, **kwargs)
-        scheme = context["request"].scheme
-        host = context["request"].get_host()
-        self.scheme_host = f'{scheme}://{host}'
 
     def to_representation(self, instance):
 
@@ -97,3 +83,30 @@ class AccountSerializer(serializers.ModelSerializer):
             return "closed"
 
 
+class TransactionSerializer(SchemeHostModelSerializer):
+
+    class Meta:
+
+        model = Transaction
+        fields = '__all__'
+
+    def to_representation(self, instance):
+
+        response = super().to_representation(instance)
+        from_account = dict(
+            id=instance.from_account.id,
+            account_name=instance.from_account.account_name,
+            currency=instance.from_account.currency,
+            ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.from_account.id})}'
+        )
+        to_account = dict(
+            id=instance.to_account.id,
+            account_name=instance.to_account.account_name,
+            currency=instance.to_account.currency,
+            ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.to_account.id})}'
+        )
+
+        response["from_account"] = from_account
+        response["to_account"] = to_account
+        response["amount"] = f'{response["amount"]} EUR'
+        return response
