@@ -50,6 +50,7 @@ class CustomerSerializer(SchemeHostModelSerializer):
 class AccountSerializer(SchemeHostModelSerializer):
 
     status = serializers.SerializerMethodField('get_status')
+    balance = serializers.SerializerMethodField('get_balance')
 
     class Meta:
 
@@ -82,8 +83,16 @@ class AccountSerializer(SchemeHostModelSerializer):
         else:
             return "closed"
 
+    @staticmethod
+    def get_balance(instance):
+
+        return instance.balance
+
 
 class TransactionSerializer(SchemeHostModelSerializer):
+
+    from_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all(),
+                                                      allow_null=True, required=False)
 
     class Meta:
 
@@ -93,12 +102,20 @@ class TransactionSerializer(SchemeHostModelSerializer):
     def to_representation(self, instance):
 
         response = super().to_representation(instance)
-        from_account = dict(
-            id=instance.from_account.id,
-            account_name=instance.from_account.account_name,
-            currency=instance.from_account.currency,
-            ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.from_account.id})}'
-        )
+
+        if instance.from_account:
+
+            from_account = dict(
+                id=instance.from_account.id,
+                account_name=instance.from_account.account_name,
+                currency=instance.from_account.currency,
+                ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.from_account.id})}'
+            )
+
+        else:
+
+            from_account = None
+
         to_account = dict(
             id=instance.to_account.id,
             account_name=instance.to_account.account_name,
