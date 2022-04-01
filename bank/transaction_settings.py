@@ -176,10 +176,6 @@ CUR_DICT = ChoiceDict(CURRENCY)
 
 API_URL = r"https://api.exchangerate.host"
 API_METHODS = {
-    'convert': lambda src, dest: f"{API_URL}/convert?from={src}&to={dest}",
-    'error': lambda src, dest: 1
-}
-
-BALANCE_CHECKER = {
-    'property': 'balance'
+    'convert': lambda src, dest, amount: f"{API_URL}/convert?from={src}&to={dest}&amount={amount}",
+    'error': lambda src, dest, amount: amount
 }

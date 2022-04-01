@@ -1,7 +1,7 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from ..models import BankAccount
 from ..serializers import AccountSerializer
-from common.utils import log_update
+from ..utils import log_update
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class AccountDetailView(RetrieveUpdateDestroyAPIView):
 
         response = super().update(request, *args, **kwargs)
         if response.status_code == 200:
-            log_update("Account", kwargs['pk'], request, response, logger)
+            log_update("Account", kwargs['pk'], request, response)
 
         return response
 

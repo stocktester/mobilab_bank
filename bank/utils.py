@@ -1,8 +1,58 @@
 from .transaction_settings import API_METHODS
+from rest_framework.serializers import ModelSerializer
+from rest_framework.fields import empty
 import requests
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+class SchemeHostModelSerializer(ModelSerializer):
+
+    def __init__(self, instance=None, data=empty, context=None, **kwargs):
+
+        super().__init__(instance=instance, data=data, **kwargs)
+        scheme = context["request"].scheme
+        host = context["request"].get_host()
+        self.scheme_host = f'{scheme}://{host}'
+
+
+class ReverseDict(dict):
+
+    def __setitem__(self, key, value):
+
+        if key in self:
+            del self[key]
+        if value in self:
+            del self[value]
+
+        dict.__setitem__(self, key, value)
+        dict.__setitem__(self, value, key)
+
+    def __delitem__(self, key):
+
+        dict.__delitem__(self, self[key])
+        dict.__delitem__(self, key)
+
+    def __len__(self):
+
+        return dict.__len__(self) // 2
+
+
+class ChoiceDict(ReverseDict):
+
+    def __init__(self, choice_tuple: tuple = None):
+
+        holder_dict = {x[0]: x[1] for x in choice_tuple}
+        super().__init__(**holder_dict)
+
+
+def log_update(object_name, pk, request, response):
+
+    edited_keys = [x for x in request.data.keys() if x in response.data.keys()]
+    if edited_keys:
+        edited_data = ",".join(map(lambda x: f"{x} => {request.data[x]}", edited_keys))
+        logger.info(f"{object_name} {pk} modified: {edited_data}")
 
 
 def convert_currency(src="USD", dst="EUR", amount=1):
