@@ -23,3 +23,13 @@ class BankAccount(models.Model):
     @property
     def balance(self):
         return 0
+
+
+class Transaction(models.Model):
+
+    from_account = models.ForeignKey(BankAccount, null=True, on_delete=models.SET_NULL, related_name='out_transactions')
+    to_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='in_transactions')
+    amount = models.FloatField()  # amount will always store as EUR
+    created = models.DateTimeField(auto_now_add=True)
+
+
