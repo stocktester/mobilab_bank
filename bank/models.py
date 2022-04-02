@@ -37,6 +37,9 @@ class BankAccount(models.Model):
 
 class Transaction(models.Model):
 
+    class Meta:
+        ordering = ['created']
+
     from_account = models.ForeignKey(BankAccount, null=True, on_delete=models.SET_NULL, related_name='out_transactions')
     to_account = models.ForeignKey(BankAccount, on_delete=models.CASCADE, related_name='in_transactions')
     amount = models.FloatField()
