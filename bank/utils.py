@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import empty
-from .currency_data import INPLACE_RATES
+from .currency_data import *
 import requests
 import logging
 
