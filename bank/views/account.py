@@ -1,4 +1,5 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from django.utils import timezone
 from ..models import BankAccount, Transaction, TransactionExtra
 from ..serializers import AccountSerializer, AccountSmallSerializer
 from ..utils import log_update, TwoSerializerListMixin
@@ -59,8 +60,16 @@ class AccountDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = AccountSerializer
 
     def perform_update(self, serializer):
-        serializer.save()
-        log_update("Account", serializer.data["id"], self.request, serializer)
+
+        if serializer.validated_data.get("close", False) and not serializer.instance.closed:
+            serializer.save(closed=timezone.now())
+            logger.critical(f"Account {serializer.instance.id} closed.")
+        elif serializer.validated_data.get("open", False) and serializer.instance.closed:
+            serializer.save(closed=None)
+            logger.info(f"Account {serializer.instance.id} opened again.")
+        else:
+            serializer.save()
+            log_update("Account", serializer.instance.id, self.request, serializer)
 
     def perform_destroy(self, instance):
         idx = instance.id

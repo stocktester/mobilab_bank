@@ -73,16 +73,20 @@ class AccountSerializer(SchemeHostModelSerializer):
     deposit = serializers.FloatField(required=False, write_only=True)
     status = serializers.SerializerMethodField('get_status')
     balance = serializers.SerializerMethodField('get_balance')
+    close = serializers.BooleanField(write_only=True, required=False)
+    open = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
 
         model = BankAccount
-        exclude = ["closed"]
+        fields = '__all__'
 
     def create(self, validated_data):
 
         vd = deepcopy(validated_data)
         vd.pop('deposit', None)
+        vd.pop('close', None)
+        vd.pop('open', None)
         return super().create(vd)
 
     def to_representation(self, instance):
@@ -111,6 +115,14 @@ class AccountSerializer(SchemeHostModelSerializer):
     def get_balance(instance):
 
         return round(instance.balance, 2)
+
+    def validate_open(self, value):
+
+        close_value = self.initial_data.get("close", False)
+        if close_value and value:
+            raise serializers.ValidationError("open and close switch can not be set simultaneously.")
+
+        return value
 
 
 class AccountSmallSerializer(SchemeHostModelSerializer):
@@ -169,6 +181,18 @@ class TransactionSerializer(SchemeHostModelSerializer):
         from_account_id = self.initial_data.get("from_account")
         if from_account_id and from_account_id == value.id:
             raise serializers.ValidationError("to_account and from_account must be different.")
+
+        if value.closed:
+            raise serializers.ValidationError("to_account is closed. Transaction can not happen.")
+
+        return value
+
+    @staticmethod
+    def validate_from_account(value):
+
+        if value and value.closed:
+            raise serializers.ValidationError("from_account is closed. Transaction can not happen.")
+
         return value
 
 
