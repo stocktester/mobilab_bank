@@ -1,6 +1,7 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.exceptions import SuspiciousOperation
 from ..models import Transaction, TransactionExtra
 from ..serializers import TransactionSerializer, TransactionSmallSerializer
 from ..utils import get_rates, TwoSerializerListMixin
@@ -87,3 +88,20 @@ class TransactionDetailView(RetrieveAPIView):
 
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+
+    def delete(self, request, *args, **kwargs):
+
+        pk = kwargs["pk"]
+        queryset = self.get_queryset()
+        last_item = queryset.last()
+        last_idx = last_item.id
+
+        if last_idx != pk:
+
+            error = {"error": f"Only the last transaction (id = {last_idx}) can be deleted. "
+                              f"Use with caution! This method is implemented for experimentation."}
+            return Response(error, status.HTTP_400_BAD_REQUEST)
+
+        last_item.delete()
+        logger.critical(f"Last transaction (id = {last_idx}) deleted!!!")
+        return Response(None, status.HTTP_204_NO_CONTENT)
