@@ -129,3 +129,20 @@ class TransactionSerializer(SchemeHostModelSerializer):
         response["amount"] = f'{response["amount"]}'
         return response
 
+
+class TransactionSmallSerializer(SchemeHostModelSerializer):
+
+    amount = serializers.SerializerMethodField("get_amount")
+    ref = serializers.SerializerMethodField("get_ref")
+
+    class Meta:
+
+        model = Transaction
+        fields = ['id', 'from_account', 'to_account', 'amount', "ref"]
+        path_name = 'bank:transaction_detail'
+
+    @staticmethod
+    def get_amount(instance):
+
+        return f"{instance.amount} {instance.currency}"
+
