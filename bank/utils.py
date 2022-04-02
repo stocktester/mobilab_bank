@@ -1,11 +1,16 @@
 from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import empty
-from .currency_data import *
+from .currency_data import INPLACE_RATES
+from django.utils import timezone
+from functools import partial
 import requests
 import logging
 
 logger = logging.getLogger(__name__)
+
+cache_time = None
+cached_data = None
 
 
 class SchemeHostModelSerializer(ModelSerializer):
@@ -18,36 +23,6 @@ class SchemeHostModelSerializer(ModelSerializer):
         self.scheme_host = f'{scheme}://{host}'
 
 
-class ReverseDict(dict):
-
-    def __setitem__(self, key, value):
-
-        if key in self:
-            del self[key]
-        if value in self:
-            del self[value]
-
-        dict.__setitem__(self, key, value)
-        dict.__setitem__(self, value, key)
-
-    def __delitem__(self, key):
-
-        dict.__delitem__(self, self[key])
-        dict.__delitem__(self, key)
-
-    def __len__(self):
-
-        return dict.__len__(self) // 2
-
-
-class ChoiceDict(ReverseDict):
-
-    def __init__(self, choice_tuple: tuple = None):
-
-        holder_dict = {x[0]: x[1] for x in choice_tuple}
-        super().__init__(**holder_dict)
-
-
 def log_update(object_name, pk, request, response):
 
     edited_keys = [x for x in request.data.keys() if x in response.data.keys()]
@@ -56,7 +31,17 @@ def log_update(object_name, pk, request, response):
         logger.info(f"{object_name} {pk} modified: {edited_data}")
 
 
-def get_rates():
+def _get_rates(use_cached=True):
+
+    global cache_time
+    global cached_data
+    if use_cached and cached_data and (timezone.now() - cache_time).total_seconds() < 300:
+
+        logger.info(f"returning cached data instead of calling api.")
+        return cached_data
+
+    cached_data = None
+    cache_time = None
 
     result = INPLACE_RATES
 
@@ -67,6 +52,9 @@ def get_rates():
         if response.status_code == 200 and response.json()["success"]:
 
             result = response.json()["rates"]
+            cached_data = result
+            cache_time = timezone.now()
+            logger.info("Called api.")
 
         else:
 
@@ -83,3 +71,7 @@ def get_rates():
     finally:
 
         return result
+
+
+get_rates = partial(_get_rates, use_cached=settings.BANK.get("use_cached", True))
+
