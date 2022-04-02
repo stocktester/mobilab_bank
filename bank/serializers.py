@@ -3,6 +3,7 @@ from .utils import SchemeHostModelSerializer
 from .models import BankCustomer, BankAccount, Transaction
 from django.shortcuts import reverse
 from .currency_data import CUR_DICT
+from copy import deepcopy
 import re
 
 
@@ -69,6 +70,7 @@ class CustomerSmallSerializer(SchemeHostModelSerializer):
 
 class AccountSerializer(SchemeHostModelSerializer):
 
+    deposit = serializers.FloatField(required=False, write_only=True)
     status = serializers.SerializerMethodField('get_status')
     balance = serializers.SerializerMethodField('get_balance')
 
@@ -76,6 +78,12 @@ class AccountSerializer(SchemeHostModelSerializer):
 
         model = BankAccount
         exclude = ["closed"]
+
+    def create(self, validated_data):
+
+        vd = deepcopy(validated_data)
+        vd.pop('deposit', None)
+        return super().create(vd)
 
     def to_representation(self, instance):
 
