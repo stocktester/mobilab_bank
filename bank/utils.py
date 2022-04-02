@@ -2,7 +2,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.shortcuts import reverse
 from rest_framework.serializers import ModelSerializer
-from rest_framework.fields import empty
 from .currency_data import INPLACE_RATES
 from functools import partial
 from rest_framework import generics
@@ -94,7 +93,7 @@ def _get_rates(use_cached=True):
 
     except requests.exceptions.RequestException as e:
 
-        logger.error("API not working correctly. Returning inplace dictionary.")
+        logger.error(f"API not working correctly. Returning inplace dictionary: {e}")
 
     finally:
 
@@ -102,4 +101,3 @@ def _get_rates(use_cached=True):
 
 
 get_rates = partial(_get_rates, use_cached=settings.BANK.get("use_cached", True))
-
