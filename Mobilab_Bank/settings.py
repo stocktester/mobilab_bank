@@ -158,7 +158,6 @@ REST_FRAMEWORK = {
 BANK = {
     'API_URL': r"https://api.exchangerate.host",
     'API_METHODS': {
-        'convert': lambda src, dest, amount: f"/convert?from={src}&to={dest}&amount={amount}",
-        'error': lambda src, dest, amount: amount
+        'list': lambda: f"/latest"
     }
 }

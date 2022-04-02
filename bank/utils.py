@@ -55,36 +55,33 @@ def log_update(object_name, pk, request, response):
         logger.info(f"{object_name} {pk} modified: {edited_data}")
 
 
-def convert_currency(src="USD", dst="EUR", amount=1):
+def get_rates():
 
-    API_METHODS = settings.BANK.get("API_METHODS", dict())
-
-    try:
-
-        alt_value = API_METHODS["error"](src, dst, amount)
-
-    except (KeyError, TypeError) as e:
-
-        logger.error("No error_method defined in API_METHODS. Returning 1.00 as exchange rate.")
-        return amount
+    result = {}
 
     try:
-        url = API_METHODS["convert"](src, dst, amount)
+
+        url = settings.BANK["API_URL"] + settings.BANK["API_METHODS"]["list"]()
         response = requests.get(url)
+        if response.status_code == 200 and response.json()["success"]:
 
-        if (response.status_code != 200) or (not response.json()["success"]):
-            logger.critical("Exchange api not working. Returning error_method value as exchange rate.")
-            return alt_value
+            result = response.json()["rates"]
 
-        data = response.json()
-        return float(data["result"])
+        else:
+
+            logger.error("API not working correctly. Returning empty dictionary.")
+            return {}
+
     except (KeyError, TypeError) as e:
 
-        logger.error(
-            f"No convert method defined in API_METHODS. Returning error_method value as exchange rate: {e}")
-        return alt_value
+        logger.error(f"API is not set properly: {e}")
+        return {}
 
     except requests.exceptions.RequestException as e:
 
-        logger.critical(f"Exchange api not working. Returning error_method value as exchange rate: {e}")
-        return alt_value
+        logger.error("API not working correctly. Returning empty dictionary.")
+        return {}
+
+    finally:
+
+        return result
