@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import empty
+from .currency_data import INPLACE_RATES
 import requests
 import logging
 
@@ -57,7 +58,7 @@ def log_update(object_name, pk, request, response):
 
 def get_rates():
 
-    result = {}
+    result = INPLACE_RATES
 
     try:
 
@@ -69,18 +70,15 @@ def get_rates():
 
         else:
 
-            logger.error("API not working correctly. Returning empty dictionary.")
-            return {}
+            logger.error("API not working correctly. Returning inplace dictionary.")
 
     except (KeyError, TypeError) as e:
 
         logger.error(f"API is not set properly: {e}")
-        return {}
 
     except requests.exceptions.RequestException as e:
 
-        logger.error("API not working correctly. Returning empty dictionary.")
-        return {}
+        logger.error("API not working correctly. Returning inplace dictionary.")
 
     finally:
 
