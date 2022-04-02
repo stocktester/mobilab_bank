@@ -17,12 +17,11 @@ cached_data = None
 
 class SchemeHostModelSerializer(ModelSerializer):
 
-    def __init__(self, instance=None, data=empty, context=None, **kwargs):
+    @property
+    def scheme_host(self):
 
-        super().__init__(instance=instance, data=data, **kwargs)
-        scheme = context["request"].scheme
-        host = context["request"].get_host()
-        self.scheme_host = f'{scheme}://{host}'
+        request = self._context.get("request")
+        return getattr(request, "_current_scheme_host", "")
 
     def get_ref(self, instance):
         return f"{self.scheme_host}{reverse(self.Meta.path_name, kwargs={'pk': instance.id})}"
@@ -52,9 +51,9 @@ class TwoSerializerListMixin:
         return serializers.get(self.request.method)
 
 
-def log_update(object_name, pk, request, response):
+def log_update(object_name, pk, request, serializer):
 
-    edited_keys = [x for x in request.data.keys() if x in response.data.keys()]
+    edited_keys = [x for x in request.data.keys() if x in serializer.data.keys()]
     if edited_keys:
         edited_data = ",".join(map(lambda x: f"{x} => {request.data[x]}", edited_keys))
         logger.info(f"{object_name} {pk} modified: {edited_data}")

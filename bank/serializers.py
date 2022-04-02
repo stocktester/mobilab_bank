@@ -13,7 +13,16 @@ class CustomerSerializer(SchemeHostModelSerializer):
     class Meta:
 
         model = BankCustomer
-        fields = ["id", "name", "phone", "email", "register_datetime", "modified", "accounts"]
+        fields = ["id", "name", "phone", "address", "email", "register_datetime", "modified", "accounts"]
+
+    def to_representation(self, instance):
+
+        response = super().to_representation(instance)
+
+        response["accounts"] = AccountSmallSerializer(instance.accounts.all(),
+                                                      many=True,
+                                                      context=self._context).data
+        return response
 
     @staticmethod
     def validate_phone(value):
@@ -47,6 +56,17 @@ class CustomerSerializer(SchemeHostModelSerializer):
         return acc_list
 
 
+class CustomerSmallSerializer(SchemeHostModelSerializer):
+
+    ref = serializers.SerializerMethodField("get_ref")
+
+    class Meta:
+
+        model = BankCustomer
+        fields = ['id', 'name', 'phone', 'address', 'email', 'ref']
+        path_name = "bank:customer_detail"
+
+
 class AccountSerializer(SchemeHostModelSerializer):
 
     status = serializers.SerializerMethodField('get_status')
@@ -61,12 +81,8 @@ class AccountSerializer(SchemeHostModelSerializer):
 
         response = super().to_representation(instance)
 
-        owner_dict = dict(
-            id=instance.owner.id,
-            name=instance.owner.name,
-            ref=f'{self.scheme_host}{reverse("bank:customer_detail", kwargs={"pk": instance.owner.id})}'
-        )
-        response["owner"] = owner_dict
+        owner_dict = CustomerSmallSerializer(instance.owner, context=self._context)
+        response["owner"] = owner_dict.data
 
         response["currency"] = dict(
             code=instance.currency,
@@ -86,7 +102,23 @@ class AccountSerializer(SchemeHostModelSerializer):
     @staticmethod
     def get_balance(instance):
 
-        return instance.balance
+        return round(instance.balance, 2)
+
+
+class AccountSmallSerializer(SchemeHostModelSerializer):
+
+    ref = serializers.SerializerMethodField('get_ref')
+    balance = serializers.SerializerMethodField('get_balance')
+
+    class Meta:
+
+        model = BankAccount
+        fields = ["id", "owner", "balance", "ref"]
+        path_name = "bank:account_detail"
+
+    @staticmethod
+    def get_balance(instance):
+        return f"{round(instance.balance, 2)} {instance.currency}"
 
 
 class TransactionSerializer(SchemeHostModelSerializer):
@@ -106,27 +138,22 @@ class TransactionSerializer(SchemeHostModelSerializer):
 
         if instance.from_account:
 
-            from_account = dict(
-                id=instance.from_account.id,
-                account_name=instance.from_account.account_name,
-                currency=instance.from_account.currency,
-                ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.from_account.id})}'
-            )
+            from_account = AccountSmallSerializer(instance.from_account, context=self._context).data
+            from_account.pop("balance")
 
         else:
 
             from_account = None
 
-        to_account = dict(
-            id=instance.to_account.id,
-            account_name=instance.to_account.account_name,
-            currency=instance.to_account.currency,
-            ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": instance.to_account.id})}'
-        )
+        to_account = AccountSmallSerializer(instance.to_account, context=self._context).data
+        to_account.pop("balance")
 
-        response["from_account"] = from_account
-        response["to_account"] = to_account
-        response["amount"] = f'{response["amount"]}'
+        response.pop("from_account")
+        response.pop("to_account")
+
+        response["from"] = from_account
+        response["to"] = to_account
+        response["amount"] = f'{instance.amount}'
         return response
 
 
