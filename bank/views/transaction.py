@@ -1,4 +1,4 @@
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import Transaction, TransactionExtra
@@ -76,3 +76,9 @@ class TransactionView(ListAPIView):
         logger.info(f"Transferred {data['amount']} {currency} {f'from {from_account.id} ' if from_account else ''}to "
                     f"{data['to_account'].id}.")
         return Response(transaction.data, status.HTTP_201_CREATED)
+
+
+class TransactionDetailView(RetrieveAPIView):
+
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionSerializer
