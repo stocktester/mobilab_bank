@@ -1,24 +1,25 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from ..models import BankCustomer
-from ..serializers import CustomerSerializer
-from ..utils import log_update
+from ..serializers import CustomerSerializer, CustomerSmallSerializer
+from ..utils import log_update, TwoSerializerListMixin
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class CustomerListView(ListCreateAPIView):
+class CustomerListView(TwoSerializerListMixin, ListCreateAPIView):
 
     queryset = BankCustomer.objects.all()
-    serializer_class = CustomerSerializer
+    serializer_class = {
+        "GET": CustomerSmallSerializer,
+        "POST": CustomerSerializer
+    }
 
-    def post(self, request, *args, **kwargs):
+    def perform_create(self, serializer):
 
-        response = super().post(request, *args, **kwargs)
-        if response.status_code == 201:
-            keys = ["id", "name", "email", "phone"]
-            logger.info(f"Created user { {x: response.data[x] for x in keys} }.")
-        return response
+        serializer.save()
+        keys = ["id", "name", "email", "phone", "address"]
+        logger.info(f"Created user { {x: serializer.data[x] for x in keys} }.")
 
 
 class CustomerDetailView(RetrieveUpdateDestroyAPIView):
@@ -26,24 +27,20 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
     queryset = BankCustomer.objects.all()
     serializer_class = CustomerSerializer
 
-    def update(self, request, *args, **kwargs):
+    def perform_update(self, serializer):
 
-        response = super().update(request, *args, **kwargs)
-        if response.status_code == 200:
-            log_update("Customer", kwargs['pk'], request, response)
+        serializer.save()
+        log_update("Customer", serializer.data["id"], self.request, serializer)
 
-        return response
+    def perform_destroy(self, instance):
 
-    def destroy(self, request, *args, **kwargs):
+        account_list = ",".join([str(x.id) for x in instance.accounts])
+        idx = instance.id
+        instance.delete()
+        if account_list:
 
-        accounts = self.get_object().accounts.all()
-        account_list = ",".join([str(x.id) for x in accounts])
-        response = super().destroy(request, *args, **kwargs)
-        if response.status_code == 204:
-            if account_list:
-                logger.info(f'Customer {kwargs["pk"]} deleted. Accounts {account_list} deleted.')
-            else:
-                logger.info(f'Customer {kwargs["pk"]} deleted.')
+            logger.info(f'Customer {idx} deleted. Accounts {account_list} deleted.')
 
-        return response
+        else:
 
+            logger.info(f'Customer {idx} deleted.')

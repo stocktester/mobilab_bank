@@ -2,20 +2,25 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import Transaction, TransactionExtra
-from ..serializers import TransactionSerializer
-from ..utils import get_rates
+from ..serializers import TransactionSerializer, TransactionSmallSerializer
+from ..utils import get_rates, TwoSerializerListMixin
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class TransactionView(ListAPIView):
+class TransactionView(TwoSerializerListMixin, ListAPIView):
     queryset = Transaction.objects.all()
-    serializer_class = TransactionSerializer
+    serializer_class = {
+        "GET": TransactionSmallSerializer,
+        "POST": TransactionSerializer
+    }
 
     def post(self, request, *args, **kwargs):
 
-        transaction = TransactionSerializer(data=request.data, context={"request": request})
+        serializer = self.get_serializer_class()
+
+        transaction = serializer(data=request.data, context={"request": request})
         transaction.is_valid(raise_exception=True)
         data = transaction.validated_data
 
