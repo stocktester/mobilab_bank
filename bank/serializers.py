@@ -156,6 +156,13 @@ class TransactionSerializer(SchemeHostModelSerializer):
         response["amount"] = f'{instance.amount}'
         return response
 
+    def validate_to_account(self, value):
+
+        from_account_id = self.initial_data.get("from_account")
+        if from_account_id and from_account_id == value.id:
+            raise serializers.ValidationError("to_account and from_account must be different.")
+        return value
+
 
 class TransactionSmallSerializer(SchemeHostModelSerializer):
 
