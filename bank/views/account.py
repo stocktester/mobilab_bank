@@ -1,8 +1,10 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from ..models import BankAccount, Transaction, TransactionExtra
 from ..serializers import AccountSerializer, AccountSmallSerializer
 from ..utils import log_update, TwoSerializerListMixin
+from ..filters import AccountFilter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -15,6 +17,8 @@ class AccountListView(TwoSerializerListMixin, ListCreateAPIView):
         "GET": AccountSmallSerializer,
         "POST": AccountSerializer
     }
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = AccountFilter
 
     def perform_create(self, serializer):
         serializer.save()

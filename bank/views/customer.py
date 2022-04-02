@@ -1,7 +1,9 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from django_filters.rest_framework import DjangoFilterBackend
 from ..models import BankCustomer
 from ..serializers import CustomerSerializer, CustomerSmallSerializer
 from ..utils import log_update, TwoSerializerListMixin
+from ..filters import CustomerFilter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -14,6 +16,8 @@ class CustomerListView(TwoSerializerListMixin, ListCreateAPIView):
         "GET": CustomerSmallSerializer,
         "POST": CustomerSerializer
     }
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CustomerFilter
 
     def perform_create(self, serializer):
 

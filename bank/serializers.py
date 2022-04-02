@@ -133,7 +133,7 @@ class AccountSmallSerializer(SchemeHostModelSerializer):
     class Meta:
 
         model = BankAccount
-        fields = ["id", "owner", "balance", "ref"]
+        fields = ["id", "account_name", "owner", "balance", "ref"]
         path_name = "bank:account_detail"
 
     @staticmethod
