@@ -1,51 +1,78 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..models import Transaction
+from ..models import Transaction, TransactionExtra
 from ..serializers import TransactionSerializer
+from ..utils import get_rates
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class TransactionView(ListAPIView):
-
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
 
     def post(self, request, *args, **kwargs):
 
-        return Response({self.request}, status.HTTP_201_CREATED)
+        transaction = TransactionSerializer(data=request.data, context={"request": request})
+        transaction.is_valid(raise_exception=True)
+        data = transaction.validated_data
 
-    # def perform_create(self, serializer):
-    #
-    #     data = serializer.validated_data
-    #     currency = self.request.data.get("currency", None)
-    #     from_account = data.get("from_account", None)
-    #     to_id = data['to_account'].id
-    #     from_id = None if not from_account else from_account.id
-    #     if not currency:
-    #         if not from_account:
-    #             serializer.save(description=f"{data['amount']} EUR")
-    #             logger.info(f"{data['amount']} EUR transferred to {to_id}")
-    #             return
-    #         else:
-    #             currency = from_account.currency
-    #             amount = convert_currency(src=currency, amount=data["amount"])
-    #             serializer.save(amount=amount, description=f"{data['amount']} {currency}")
-    #             logger.info(f"{data['amount']} {currency} transferred from {from_id} to {to_id}")
-    #             return
-    #
-    #     amount = convert_currency(src=currency, amount=data["amount"])
-    #     serializer.save(amount=amount, description=f"{data['amount']} {currency}")
-    #     logger.info(f"{data['amount']} {currency} transferred from {from_id} to {to_id}")
+        currency = data.get("currency")
+        from_account = data.get("from_account")
 
+        to_currency = data["to_account"].currency
+        currency = currency if currency else getattr(from_account, "currency", to_currency)
+        from_currency = getattr(from_account, "currency", to_currency)
 
+        # Validate amount if from_currency == currency and from_account exists
 
+        if ((from_account and
+             from_currency == currency and
+             from_account.balance < data["amount"])):
+            return Response({
+                'error': f"Account #{from_account.id} doesn't have enough balance to complete the transaction."
+            }, status.HTTP_400_BAD_REQUEST)
 
+        # Make api call if needed
 
+        if not (currency == to_currency == from_currency):
+            rates = get_rates()
 
+            if not rates:
+                rates = dict()
+                rates.__setitem__(currency, 1)
+                rates.__setitem__(to_currency, 1)
+                rates.__setitem__(from_currency, 1)
+        else:
+            rates = {currency: 1}
 
+        # Calculating amounts in corresponding currencies
 
+        trans_2_base = 1 / rates.get(currency, 1)
+        trans_2_to = rates.get(to_currency, 1) * trans_2_base
+        trans_2_from = rates.get(from_currency, 1) * trans_2_base
 
+        to_amount = data['amount'] * trans_2_to
+        from_amount = data['amount'] * trans_2_from
 
+        # Validating the amount
+
+        if from_account and from_account.balance < from_amount:
+            return Response({
+                'error': f"Account #{from_account.id} doesn't have enough balance to complete the transaction."
+            }, status.HTTP_400_BAD_REQUEST)
+
+        transaction_obj = transaction.save(currency=currency)
+
+        extra = TransactionExtra(
+            from_amount=from_amount,
+            to_amount=to_amount,
+            transaction=transaction_obj
+        )
+
+        extra.save()
+        logger.info(f"Transferred {data['amount']} {currency} {f'from {from_account.id} ' if from_account else ''}to "
+                    f"{data['to_account'].id}.")
+        return Response(transaction.data, status.HTTP_201_CREATED)

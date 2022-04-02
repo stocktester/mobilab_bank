@@ -93,6 +93,7 @@ class TransactionSerializer(SchemeHostModelSerializer):
 
     from_account = serializers.PrimaryKeyRelatedField(queryset=BankAccount.objects.all(),
                                                       allow_null=True, required=False)
+    currency = serializers.CharField(required=False)
 
     class Meta:
 
@@ -125,5 +126,6 @@ class TransactionSerializer(SchemeHostModelSerializer):
 
         response["from_account"] = from_account
         response["to_account"] = to_account
-        response["amount"] = f'{response["amount"]} EUR'
+        response["amount"] = f'{response["amount"]}'
         return response
+
