@@ -26,8 +26,12 @@ class BankAccount(models.Model):
     @property
     def balance(self):
 
-        result = 0
-        return result
+        sum_in = self.in_transactions.aggregate(value=models.Sum("extra__to_amount")).get("value")
+        sum_out = self.out_transactions.aggregate(value=models.Sum("extra__from_amount")).get("value")
+
+        sum_in = sum_in if sum_in else 0
+        sum_out = sum_out if sum_out else 0
+        return sum_in - sum_out
 
 
 class Transaction(models.Model):
@@ -44,5 +48,8 @@ class TransactionExtra(models.Model):
 
     from_amount = models.FloatField()
     to_amount = models.FloatField()
-    transaction = models.OneToOneField(Transaction, on_delete=models.CASCADE, primary_key=True)
+    transaction = models.OneToOneField(Transaction,
+                                       on_delete=models.CASCADE,
+                                       primary_key=True,
+                                       related_name="extra")
 
