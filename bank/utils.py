@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.utils import timezone
+from django.shortcuts import reverse
 from rest_framework.serializers import ModelSerializer
 from rest_framework.fields import empty
 from .currency_data import INPLACE_RATES
-from django.utils import timezone
 from functools import partial
+from rest_framework import generics
 import requests
 import logging
 
@@ -21,6 +23,33 @@ class SchemeHostModelSerializer(ModelSerializer):
         scheme = context["request"].scheme
         host = context["request"].get_host()
         self.scheme_host = f'{scheme}://{host}'
+
+    def get_ref(self, instance):
+        return f"{self.scheme_host}{reverse(self.Meta.path_name, kwargs={'pk': instance.id})}"
+
+
+class TwoSerializerListMixin:
+
+    def get_serializer_class(self: generics.GenericAPIView):
+
+        serializers: dict = self.serializer_class
+
+        assert serializers is not None, (
+                "'%s' should either include a `serializer_class` attribute, "
+                "or override the `get_serializer_class()` method."
+                % self.__class__.__name__
+        )
+
+        assert type(serializers) is dict, (
+                "`serializer_class` attribute when using TwoSerializerListMixin should be a dictionary "
+                "which keys are request method types."
+        )
+
+        assert serializers.get(self.request.method) is not None, (
+                f"There is no {self.request.method} key in `serializer_class` attribute"
+        )
+
+        return serializers.get(self.request.method)
 
 
 def log_update(object_name, pk, request, response):
