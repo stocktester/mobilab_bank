@@ -1,10 +1,11 @@
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.core.exceptions import SuspiciousOperation
+from django_filters.rest_framework import DjangoFilterBackend
 from ..models import Transaction, TransactionExtra
 from ..serializers import TransactionSerializer, TransactionSmallSerializer
 from ..utils import get_rates, TwoSerializerListMixin
+from ..filters import TransactionFilter
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,8 @@ class TransactionView(TwoSerializerListMixin, ListAPIView):
         "GET": TransactionSmallSerializer,
         "POST": TransactionSerializer
     }
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TransactionFilter
 
     def post(self, request, *args, **kwargs):
 

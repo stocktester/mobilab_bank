@@ -204,7 +204,7 @@ class TransactionSmallSerializer(SchemeHostModelSerializer):
     class Meta:
 
         model = Transaction
-        fields = ['id', 'from_account', 'to_account', 'amount', "ref"]
+        fields = ['id', 'from_account', 'to_account', 'amount', "created", "ref"]
         path_name = 'bank:transaction_detail'
 
     @staticmethod
