@@ -11,9 +11,10 @@ services:
     expose:
       - "8000"
     volumes:
-      - django_data:/app
+      - .:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:latest
@@ -26,8 +27,12 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d mobilab" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:
-  django_data:
 
