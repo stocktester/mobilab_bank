@@ -6,6 +6,7 @@ services:
     environment:
       - PYTHONBUFFERED=1
       - DATABASE_URL=db
+      - SERVER_PORT=8000
     entrypoint: ./entrypoint.sh
     expose:
       - "8000"
