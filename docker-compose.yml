@@ -7,10 +7,6 @@ services:
       - PYTHONBUFFERED=1
       - DEFAULT_DB=docker
       - SERVER_PORT=8000
-      - FLUSH_DB=1
-      - POP_CUSTOMER=1
-      - POP_ACCOUNT=1
-      - POP_TRANS=1
     entrypoint: ./entrypoint.sh
     expose:
       - "8000"
