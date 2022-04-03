@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -78,22 +79,31 @@ WSGI_APPLICATION = 'Mobilab_Bank.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'mobilab',
-#         'USER': 'postgres',
-#         'PASSWORD': 'postgres',
-#         'HOST': 'db',
-#         'PORT': '5432',
-#     }
-# }
 DATABASES = {
-    'default': {
+    'docker': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mobilab',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'db',
+        'PORT': '5432',
+    },
+    'github': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mobilab',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    },
+    'local': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3'
     }
 }
+
+default_database = os.environ.get('DEFAULT_DB', 'local')
+DATABASES['default'] = DATABASES[default_database]
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 

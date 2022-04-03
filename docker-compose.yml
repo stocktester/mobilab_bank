@@ -5,7 +5,7 @@ services:
       - 8000:8000
     environment:
       - PYTHONBUFFERED=1
-      - DATABASE_URL=db
+      - DEFAULT_DB=docker
       - SERVER_PORT=8000
     entrypoint: ./entrypoint.sh
     expose:
