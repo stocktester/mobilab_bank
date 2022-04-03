@@ -34,7 +34,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Test Postgres
+      - name: Migrate data
         run: |
           python manage.py migrate
-          
+
+      - name: test
+        run: |
+          python manage.py test bank

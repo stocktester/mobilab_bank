@@ -38,7 +38,7 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
 
-        account_list = ",".join([str(x.id) for x in instance.accounts])
+        account_list = ",".join([str(x.id) for x in instance.accounts.all()])
         idx = instance.id
         instance.delete()
         if account_list:
