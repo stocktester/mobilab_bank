@@ -8,7 +8,7 @@
 
 [TOC]
 
-#How to run
+# How to run
 1. Clone the repo on your local machine
 
 `git clone https://github.com/stocktester/mobilab_bank.git`
