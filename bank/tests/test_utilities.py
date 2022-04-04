@@ -78,17 +78,17 @@ class UtilityTests(TestCase):
         rates = utils.get_rates()
         self.assertIsInstance(rates, dict)
 
-    @tag("utility", "unit")
-    def test_get_rates_cached(self):
-
-        utils.cached_data = None
-        utils.cache_time = None
-
-        rates1 = utils.get_rates()
-        self.assertIsInstance(utils.cached_data, dict)
-        self.assertIsInstance(utils.cache_time, datetime.datetime)
-        rates2 = utils.get_rates()
-        self.assertEqual(rates1, rates2)
+    # @tag("utility", "unit")
+    # def test_get_rates_cached(self):
+    #
+    #     utils.cached_data = None
+    #     utils.cache_time = None
+    #
+    #     rates1 = utils.get_rates()
+    #     self.assertIsInstance(utils.cached_data, dict)
+    #     self.assertIsInstance(utils.cache_time, datetime.datetime)
+    #     rates2 = utils.get_rates()
+    #     self.assertEqual(rates1, rates2)
 
     @tag("utility", "unit")
     def test_get_rates_api_error(self):

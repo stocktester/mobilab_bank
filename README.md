@@ -20,3 +20,8 @@ The api is available at `127.0.0.1:8000`
 # Documentation
 
 Documentation is available at `127.0.0.1:8000/redoc` or `127.0.0.1:8000/swagger`
+
+# Database options
+
+By default, docker container will flush database in every instance of run, and populates database again.
+To prevent this behavior after the first run, you can unset `POPULATE_DB` environment variable in `docker-compose.yml`

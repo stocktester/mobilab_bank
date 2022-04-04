@@ -6,5 +6,5 @@ echo "Flushing database" &&
 python manage.py flush --noinput &&
 echo "Populating Database" &&
 python manage.py loaddata "initial_data.json";fi) &&
-python manage.py test bank/tests &&
+echo "Getting server ready..." &&
 python manage.py runserver 0.0.0.0:"$SERVER_PORT" --noreload
