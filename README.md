@@ -20,6 +20,8 @@ The api is available at `127.0.0.1:8000`
 # Documentation
 
 Documentation is available at `127.0.0.1:8000/redoc` or `127.0.0.1:8000/swagger`
+Also, you can use postman collection `postman_collection.json`. To do so, open postman, press `ctrl+o`, `cmd+o` or select `Import` from `File` menu.
+Then select `File > Upload Files > postman_collection.json`
 
 # Database options
 

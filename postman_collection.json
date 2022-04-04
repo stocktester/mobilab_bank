@@ -1,0 +1,624 @@
+{
+	"info": {
+		"_postman_id": "88be3e06-2e61-4ca0-bd82-2149873ea516",
+		"name": "Mobilab Bank API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Make new customer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"aidin tavvafi\",\n    \"email\": \"aidinaidin2@t.com\",\n    \"phone\": \"+9983213132288232\",\n    \"address\": \"rasht, iran\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make new customer [random data]",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const characters = 'bcdfghjklmnpqrstvwxyz';",
+							"const vowels = 'aeiuo'",
+							"const numbers = '123456789'",
+							"",
+							"function generateString(length) {",
+							"    let result = '';",
+							"    let state = 0;",
+							"    const charactersLength = characters.length;",
+							"    const vowelsLength = vowels.length;",
+							"    for ( let i = 0; i < length; i++ ) {",
+							"",
+							"        if (state === 0){",
+							"            result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+							"            state = 1;",
+							"        }",
+							"        else{",
+							"            result += vowels.charAt(Math.floor(Math.random() * vowelsLength));",
+							"            state = 0;",
+							"        }",
+							"        ",
+							"    }",
+							"",
+							"    return result;",
+							"}",
+							"",
+							"function generatePhone(length){",
+							"    let result = '+';",
+							"    const charactersLength = numbers.length;",
+							"    for ( let i = 0; i < length; i++ ) {",
+							"        result += numbers.charAt(Math.floor(Math.random() * charactersLength));",
+							"    }",
+							"",
+							"    return result;",
+							"}",
+							"",
+							"let body = {",
+							"    name: `${generateString(5)} ${generateString(5)}`, ",
+							"    email: `${generateString(5)}@${generateString(5)}.org`,",
+							"    phone: generatePhone(11)",
+							"}",
+							"",
+							"pm.variables.set('body', JSON.stringify(body));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Customer List",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Customer Detail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/5",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Customer",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"test@test.test\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/14",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						"14"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Customer",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/customer/34",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"customer",
+						"34"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/?account_name=exp&owner=39&id=39&is_closed=true",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						""
+					],
+					"query": [
+						{
+							"key": "account_name",
+							"value": "exp"
+						},
+						{
+							"key": "owner",
+							"value": "39"
+						},
+						{
+							"key": "id",
+							"value": "39"
+						},
+						{
+							"key": "is_closed",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make new account [random]",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const cur = [\"USD\", \"EUR\", \"IRR\", \"JPY\", \"GBP\", \"AUD\", \"CAD\", \"CNY\"]",
+							"let owners = []",
+							"const characters = 'bcdfghjklmnpqrstvwxyz';",
+							"const vowels = 'aeiuo'",
+							"",
+							"function generateString(length) {",
+							"    let result = '';",
+							"    let state = 0;",
+							"    const charactersLength = characters.length;",
+							"    const vowelsLength = vowels.length;",
+							"    for ( let i = 0; i < length; i++ ) {",
+							"",
+							"        if (state === 0){",
+							"            result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+							"            state = 1;",
+							"        }",
+							"        else{",
+							"            result += vowels.charAt(Math.floor(Math.random() * vowelsLength));",
+							"            state = 0;",
+							"        }",
+							"        ",
+							"    }",
+							"",
+							"    return result;",
+							"}",
+							"",
+							"function randomCurrency(){",
+							"    const random = Math.floor(Math.random() * cur.length);",
+							"    return cur[random];",
+							"}",
+							"",
+							"pm.sendRequest({",
+							"    url: pm.environment.get(\"base_url\") + \"/bank/customer?limit=100\",",
+							"    method: 'GET',",
+							"}, function (err, res) {",
+							"    owners = owners.concat(res.json().results.map((item) => item.id));",
+							"",
+							"    function randomOwner(){",
+							"",
+							"        const random = Math.floor(Math.random() * owners.length);",
+							"        return owners[random];",
+							"",
+							"    }",
+							"",
+							"    let body = {",
+							"        owner: randomOwner(),",
+							"        currency: randomCurrency(),",
+							"        account_name: generateString(10),",
+							"        balance: Math.floor(Math.random() * 10000)",
+							"    };",
+							"",
+							"    console.log(body);",
+							"    pm.variables.set('body', JSON.stringify(body));",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{body}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Make new account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"account_name\": \"expenses\",\n    \"owner\": 37,\n    \"currency\": \"CAD\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account Detail",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/32",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						"32"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account Update",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"close\": true,\n    \"open\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/33",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						"33"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Account",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/account/51",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"account",
+						"51"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transaction List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/transaction/?limit=20&created_after=2022-04-02T00:00:00&created_before=2022-04-02T00:08:00&order=-created",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"transaction",
+						""
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "20"
+						},
+						{
+							"key": "created_after",
+							"value": "2022-04-02T00:00:00"
+						},
+						{
+							"key": "created_before",
+							"value": "2022-04-02T00:08:00"
+						},
+						{
+							"key": "order",
+							"value": "-created"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Transaction",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"from_account\": 71,\n    \"to_account\": 33,\n    \"amount\": 100,\n    \"currency\": \"IRR\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/transaction/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"transaction",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Transaction",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/bank/transaction/364",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"bank",
+						"transaction",
+						"364"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
