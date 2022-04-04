@@ -7,10 +7,15 @@ from ..serializers import TransactionSerializer, TransactionSmallSerializer
 from ..utils import get_rates, TwoSerializerListMixin
 from ..filters import TransactionFilter
 import logging
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from .docs import transaction
 
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**transaction.list_get))
+@method_decorator(name="post", decorator=swagger_auto_schema(**transaction.post))
 class TransactionView(TwoSerializerListMixin, ListAPIView):
     queryset = Transaction.objects.all()
     serializer_class = {
@@ -87,6 +92,8 @@ class TransactionView(TwoSerializerListMixin, ListAPIView):
         return Response(transaction.data, status.HTTP_201_CREATED)
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**transaction.detail_get))
+@method_decorator(name="delete", decorator=swagger_auto_schema(**transaction.delete))
 class TransactionDetailView(RetrieveAPIView):
 
     queryset = Transaction.objects.all()

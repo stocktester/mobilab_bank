@@ -7,15 +7,12 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="Mobilab Bank",
       default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.google.com/policies/terms/",
-      contact=openapi.Contact(email="contact@snippets.local"),
-      license=openapi.License(name="BSD License"),
+      description="A simple banking api",
+      contact=openapi.Contact(email="at.aidin@gmail.com"),
    ),
    public=True,
-   permission_classes=[permissions.AllowAny],
 )
 
 urlpatterns = [

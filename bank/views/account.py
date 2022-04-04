@@ -6,10 +6,15 @@ from ..serializers import AccountSerializer, AccountSmallSerializer
 from ..utils import log_update, TwoSerializerListMixin
 from ..filters import AccountFilter
 import logging
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from .docs import account
 
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**account.list_get))
+@method_decorator(name="post", decorator=swagger_auto_schema(**account.post))
 class AccountListView(TwoSerializerListMixin, ListCreateAPIView):
 
     queryset = BankAccount.objects.all()
@@ -58,6 +63,10 @@ class AccountListView(TwoSerializerListMixin, ListCreateAPIView):
         logger.info(f"Created account {log_data}.")
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**account.detail_get))
+@method_decorator(name="patch", decorator=swagger_auto_schema(**account.patch))
+@method_decorator(name="put", decorator=swagger_auto_schema(**account.put))
+@method_decorator(name="delete", decorator=swagger_auto_schema(**account.delete))
 class AccountDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = BankAccount.objects.all()

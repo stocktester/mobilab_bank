@@ -9,7 +9,8 @@ class TransactionFilter(filters.FilterSet):
             ('from_account', 'from_account'),
             ('to_account', 'to_account'),
             ('currency', 'currency'),
-            ('created', 'created')
+            ('created', 'created'),
+            ('amount', 'amount')
         }
     )
 

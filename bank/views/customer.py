@@ -5,10 +5,15 @@ from ..serializers import CustomerSerializer, CustomerSmallSerializer
 from ..utils import log_update, TwoSerializerListMixin
 from ..filters import CustomerFilter
 import logging
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
+from .docs import customer
 
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**customer.list_get))
+@method_decorator(name="post", decorator=swagger_auto_schema(**customer.post))
 class CustomerListView(TwoSerializerListMixin, ListCreateAPIView):
 
     queryset = BankCustomer.objects.all()
@@ -26,6 +31,10 @@ class CustomerListView(TwoSerializerListMixin, ListCreateAPIView):
         logger.info(f"Created user { {x: serializer.data[x] for x in keys} }.")
 
 
+@method_decorator(name="get", decorator=swagger_auto_schema(**customer.detail_get))
+@method_decorator(name="patch", decorator=swagger_auto_schema(**customer.patch))
+@method_decorator(name="put", decorator=swagger_auto_schema(**customer.put))
+@method_decorator(name="delete", decorator=swagger_auto_schema(**customer.delete))
 class CustomerDetailView(RetrieveUpdateDestroyAPIView):
 
     queryset = BankCustomer.objects.all()
