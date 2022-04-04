@@ -2,12 +2,6 @@
 
 ![example workflow](https://github.com/stocktester/mobilab_bank/actions/workflows/main.yml/badge.svg)
 
-**Table of Contents**
-
-[TOCM]
-
-[TOC]
-
 # How to run
 1. Clone the repo on your local machine
 
