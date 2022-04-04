@@ -1,8 +1,8 @@
 from django.test import TestCase, tag
 from rest_framework.test import APIRequestFactory
 from django.shortcuts import reverse
-from ..views import CustomerDetailView
-from ..models import BankCustomer
+from bank.views import CustomerDetailView
+from bank.models import BankCustomer
 
 
 class CustomerDetailViewTests(TestCase):
