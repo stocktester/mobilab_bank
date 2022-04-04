@@ -1,4 +1,4 @@
-# Mobilab_bank
+# Mobilab_Bank
 
 ![example workflow](https://github.com/stocktester/mobilab_bank/actions/workflows/main.yml/badge.svg)
 
