@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from rest_framework.test import APIRequestFactory
 from django.shortcuts import reverse
 from ..views import CustomerListView
@@ -10,12 +10,14 @@ class CustomerListViewTests(TestCase):
 
         self.factory = APIRequestFactory()
 
+    @tag("view")
     def test_getting_list(self) -> None:
 
         request = self.factory.get(reverse("bank:customer"))
         response = CustomerListView.as_view()(request)
         self.assertEqual(response.status_code, 200)
 
+    @tag("view")
     def test_making_new_customer(self) -> None:
 
         new_user = dict(
@@ -28,6 +30,7 @@ class CustomerListViewTests(TestCase):
         response = CustomerListView.as_view()(request)
         self.assertEqual(response.status_code, 201)
 
+    @tag("view")
     def test_valid_phone(self) -> None:
 
         new_user = dict(
@@ -40,6 +43,7 @@ class CustomerListViewTests(TestCase):
         response = CustomerListView.as_view()(request)
         self.assertEqual(response.status_code, 400)
 
+    @tag("view")
     def test_valid_email(self) -> None:
 
         new_user = dict(

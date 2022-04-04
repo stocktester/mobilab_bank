@@ -19,13 +19,22 @@ class ReverseDict(dict):
 
         return dict.__len__(self) // 2
 
+    def pop(self, key):
+
+        value = self.__getitem__(key)
+        self.__delitem__(key)
+        return key, value
+
 
 class ChoiceDict(ReverseDict):
 
     def __init__(self, choice_tuple: tuple = None):
 
-        holder_dict = {x[0]: x[1] for x in choice_tuple}
-        super().__init__(**holder_dict)
+        super().__init__()
+
+        for choice in choice_tuple:
+
+            self[choice[0]] = choice[1]
 
 
 CURRENCY = (('AED', 'United Arab Emirates Dirham'),

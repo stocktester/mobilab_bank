@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from rest_framework.test import APIRequestFactory
 from django.shortcuts import reverse
 from ..views import CustomerDetailView
@@ -35,12 +35,14 @@ class CustomerDetailViewTests(TestCase):
         user3.save()
         self.user3_id = user3.id
 
+    @tag("view")
     def check_response_dict_keys(self, response) -> None:
 
         self.assertIn("name", response.data)
         self.assertIn("email", response.data)
         self.assertIn("phone", response.data)
 
+    @tag("view")
     def edit_response(self, user_id, data):
 
         request = self.factory.put(reverse("bank:customer_detail", kwargs={'pk': user_id}),
@@ -49,6 +51,7 @@ class CustomerDetailViewTests(TestCase):
 
         return response
 
+    @tag("view")
     def test_get_customer(self) -> None:
 
         request = self.factory.get(reverse("bank:customer_detail", kwargs={'pk': self.user1_id}))
@@ -60,6 +63,7 @@ class CustomerDetailViewTests(TestCase):
         self.assertEqual(response.data["phone"], "+98199881")
         self.assertEqual(response.data["email"], "Test@User1.test")
 
+    @tag("view")
     def test_get_non_existing_customer(self) -> None:
 
         request = self.factory.get(reverse("bank:customer_detail", kwargs={'pk': 999}))
@@ -67,6 +71,7 @@ class CustomerDetailViewTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    @tag("view")
     def test_edit_customer(self) -> None:
 
         new_user_2 = dict(
@@ -83,6 +88,7 @@ class CustomerDetailViewTests(TestCase):
         self.assertEqual(response.data["phone"], "+122345")
         self.assertEqual(response.data["email"], "test@user2.test")
 
+    @tag("view")
     def test_edit_customer_with_partial_data(self) -> None:
 
         new_data_2 = dict(
@@ -104,6 +110,7 @@ class CustomerDetailViewTests(TestCase):
         self.check_response_dict_keys(response)
         self.assertEqual(response.data["email"], "test@test.org")
 
+    @tag("view")
     def test_edit_customer_invalid(self) -> None:
 
         new_data_email = dict(
@@ -122,6 +129,7 @@ class CustomerDetailViewTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
 
+    @tag("view")
     def test_edit_non_existing_customer(self) -> None:
 
         new_data = dict(
@@ -132,6 +140,7 @@ class CustomerDetailViewTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    @tag("view")
     def test_delete_customer(self) -> None:
 
         request = self.factory.delete(reverse("bank:customer_detail", kwargs={'pk': self.user3_id}))
@@ -144,6 +153,7 @@ class CustomerDetailViewTests(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    @tag("view")
     def test_delete_non_existing_customer(self) -> None:
 
         request = self.factory.delete(reverse("bank:customer_detail", kwargs={'pk': 999}))

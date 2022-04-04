@@ -7,10 +7,10 @@ logger = logging.getLogger(__name__)
 
 class BankCustomer(models.Model):
 
-    name = models.CharField(max_length=100, default="John")
-    phone = models.CharField(max_length=100, default="0000")
-    email = models.CharField(max_length=100, default="def@ault.default")
-    address = models.CharField(max_length=250, default="Simple Address")
+    name = models.CharField(max_length=100, default="John Murray")
+    phone = models.CharField(max_length=100, default="+12345678")
+    email = models.CharField(max_length=100, default="def@defa.ult")
+    address = models.CharField(max_length=250, default="Simple Address, Simple Block")
     register_datetime = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

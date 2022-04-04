@@ -9,12 +9,13 @@ import re
 
 class CustomerSerializer(SchemeHostModelSerializer):
 
-    accounts = serializers.SerializerMethodField("get_accounts")
+    register_datetime = serializers.DateTimeField(read_only=True)
+    modified = serializers.DateTimeField(read_only=True)
 
     class Meta:
 
         model = BankCustomer
-        fields = ["id", "name", "phone", "address", "email", "register_datetime", "modified", "accounts"]
+        fields = ["id", "name", "phone", "address", "email", "register_datetime", "modified"]
 
     def to_representation(self, instance):
 
@@ -43,18 +44,6 @@ class CustomerSerializer(SchemeHostModelSerializer):
             raise serializers.ValidationError("Email address is not in correct format.")
 
         return value
-
-    def get_accounts(self, instance):
-
-        accounts = instance.accounts.all()
-        acc_list = [dict(
-            id=x.id,
-            account_name=x.account_name,
-            balance=f'{x.balance} {x.currency}',
-            ref=f'{self.scheme_host}{reverse("bank:account_detail", kwargs={"pk": x.id})}'
-        ) for x in accounts]
-
-        return acc_list
 
 
 class CustomerSmallSerializer(SchemeHostModelSerializer):
