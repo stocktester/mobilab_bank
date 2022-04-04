@@ -21,4 +21,8 @@
 
 `docker-compose up`  or `docker-compose up -d`
 
-The api will be available at `127.0.0.1:8000`
+The api is available at `127.0.0.1:8000`
+
+# Documentation
+
+Documentation is available at `127.0.0.1:8000/redoc` or `127.0.0.1:8000/swagger`
