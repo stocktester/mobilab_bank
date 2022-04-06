@@ -52,7 +52,7 @@ class TransactionView(TwoSerializerListMixin, ListAPIView):
         # Make api call if needed
 
         if not (currency == to_currency == from_currency):
-            rates = get_rates()
+            rates, *_ = get_rates()
 
             if not rates:
                 rates = dict()

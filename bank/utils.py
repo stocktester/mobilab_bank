@@ -65,7 +65,7 @@ def _get_rates(use_cached=True):
     if use_cached and cached_data and (timezone.now() - cache_time).total_seconds() < 300:
 
         logger.info(f"returning cached data instead of calling api.")
-        return cached_data
+        return cached_data, 1
 
     cached_data = None
     cache_time = None
@@ -97,7 +97,7 @@ def _get_rates(use_cached=True):
 
     finally:
 
-        return result
+        return result, (cached_data is not None)
 
 
 get_rates = partial(_get_rates, use_cached=settings.BANK.get("use_cached", True))
