@@ -18,7 +18,7 @@ class BankCustomer(models.Model):
 class BankAccount(models.Model):
 
     owner = models.ForeignKey(BankCustomer, on_delete=models.CASCADE, related_name='accounts')
-    account_name = models.CharField(max_length=100)
+    account_name = models.CharField(max_length=100, default="A simple account")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     currency = models.CharField(max_length=100, choices=CURRENCY, default="EUR")
