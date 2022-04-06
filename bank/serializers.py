@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .utils import SchemeHostModelSerializer
 from .models import BankCustomer, BankAccount, Transaction
-from django.shortcuts import reverse
 from .currency_data import CUR_DICT
 from copy import deepcopy
 import re
@@ -162,7 +161,7 @@ class TransactionSerializer(SchemeHostModelSerializer):
 
         response["from"] = from_account
         response["to"] = to_account
-        response["amount"] = f'{instance.amount}'
+        response["amount"] = instance.amount
         return response
 
     def validate_to_account(self, value):
@@ -200,4 +199,3 @@ class TransactionSmallSerializer(SchemeHostModelSerializer):
     def get_amount(instance):
 
         return f"{instance.amount} {instance.currency}"
-

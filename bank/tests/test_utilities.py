@@ -1,39 +1,17 @@
 import datetime
 import logging
-
+import requests
 from django.conf import settings
 from django.test import TestCase, tag
 from bank import utils
 from bank import models
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from rest_framework import serializers, generics
 from django.shortcuts import reverse
 from bank.currency_data import INPLACE_RATES, ChoiceDict
 
 
 class UtilityTests(TestCase):
-
-    @tag("utility", "serializer", "unit")
-    def test_costume_model_serializer_get_ref(self):
-
-        class TestSerializer(utils.SchemeHostModelSerializer):
-            ref = serializers.SerializerMethodField("get_ref")
-
-            class Meta:
-                model = models.BankCustomer
-                fields = '__all__'
-                path_name = "bank:customer_detail"
-
-        customer = models.BankCustomer()
-        customer.save()
-        serialized = TestSerializer(customer, context={
-            "request": Mock(_current_scheme_host="http://test_url.test")
-        })
-        reverse_ = reverse("bank:customer_detail", kwargs={
-            'pk': customer.id
-        })
-        self.assertEqual(serialized.data["ref"], f"http://test_url.test"
-                                                 f"{reverse_}")
 
     @tag("utility", "view_mixin", "unit")
     def test_two_serializer_mixin_pass(self):
@@ -75,31 +53,46 @@ class UtilityTests(TestCase):
     @tag("utility", "unit")
     def test_get_rates_type(self):
 
-        rates = utils.get_rates()
+        rates, *_ = utils.get_rates()
         self.assertIsInstance(rates, dict)
 
-    # @tag("utility", "unit")
-    # def test_get_rates_cached(self):
-    #
-    #     utils.cached_data = None
-    #     utils.cache_time = None
-    #
-    #     rates1 = utils.get_rates()
-    #     self.assertIsInstance(utils.cached_data, dict)
-    #     self.assertIsInstance(utils.cache_time, datetime.datetime)
-    #     rates2 = utils.get_rates()
-    #     self.assertEqual(rates1, rates2)
+    @tag("utility", "unit")
+    def test_get_rates_cached(self):
+
+        utils.cached_data = None
+        utils.cache_time = None
+
+        with patch("requests.get"):
+
+            requests.get.return_value = Mock(
+                status_code=200,
+                json=lambda: dict(
+                    rates={'EUR': 1},
+                    success=True
+                )
+            )
+
+            rates1, cached, *_ = utils.get_rates()
+
+        self.assertEqual(cached, 1)
+        self.assertIsInstance(utils.cached_data, dict)
+        self.assertIsInstance(utils.cache_time, datetime.datetime)
+
+        rates2, *_ = utils.get_rates()
+        self.assertEqual(rates1, rates2)
+        utils.cached_data = None
+        utils.cache_time = None
 
     @tag("utility", "unit")
     def test_get_rates_api_error(self):
 
         hold_it = settings.BANK["API_URL"]
         settings.BANK["API_URL"] = "http://mmm.nnn"
-        self.assertEqual(utils.get_rates(), INPLACE_RATES)
+        self.assertEqual(utils.get_rates()[0], INPLACE_RATES)
         settings.BANK["API_URL"] = "https://google.com"
-        self.assertEqual(utils.get_rates(), INPLACE_RATES)
+        self.assertEqual(utils.get_rates()[0], INPLACE_RATES)
         settings.BANK.pop("API_URL")
-        self.assertEqual(utils.get_rates(), INPLACE_RATES)
+        self.assertEqual(utils.get_rates()[0], INPLACE_RATES)
         settings.BANK["API_URL"] = hold_it
 
     @tag("utility", "unit")
